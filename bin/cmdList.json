@@ -1,0 +1,17 @@
+[
+  {
+    "cmd": "addCmd",
+    "alias": "ac",
+    "desc": "新增一个命令"
+  },
+  {
+    "cmd": "deleteCmd",
+    "alias": "dc",
+    "desc": "删除一个命令"
+  },
+  {
+    "cmd": "runCmd",
+    "alias": "rc",
+    "desc": "展示当前命令&选择命令运行"
+  }
+]
