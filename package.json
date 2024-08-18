@@ -1,29 +1,29 @@
 {
-    "name": "lang-cli",
-    "version": "1.0.0",
-    "description": "lang-cli",
-    "main": "bin/index.js",
-    "bin": {
-        "lc": "bin/index.js"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "npmp": "npm version patch && npm publish"
-    },
-    "keywords": [],
-    "author": "hzq",
-    "license": "ISC",
-    "dependencies": {
-        "chalk": "^4.1.2",
-        "commander": "^12.1.0",
-        "dayjs": "^1.11.12",
-        "download-git-repo": "^3.0.2",
-        "fs-extra": "^11.2.0",
-        "handlebars": "^4.7.8",
-        "inquirer": "^8",
-        "ora": "^5.4.1",
-        "path": "^0.12.7",
-        "simple-git": "^3.25.0"
-    },
-    "templateUrl": "https://github.com/MrHzq/cli-template-2024.git"
+  "name": "lang-cli",
+  "version": "1.0.0",
+  "description": "lang-cli",
+  "main": "bin/index.js",
+  "bin": {
+    "lc": "bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "npmp": "npm version patch && npm publish"
+  },
+  "keywords": [],
+  "author": "hzq",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "dayjs": "^1.11.12",
+    "download-git-repo": "^3.0.2",
+    "fs-extra": "^11.2.0",
+    "handlebars": "^4.7.8",
+    "inquirer": "^8",
+    "ora": "^5.4.1",
+    "path": "^0.12.7",
+    "simple-git": "^3.25.0"
+  },
+  "templateUrl": "https://github.com/MrHzq/cli-template-2024.git"
 }
