@@ -2,21 +2,21 @@
   {
     "cmd": "addCmd",
     "alias": "ac",
-    "desc": "新增一个命令"
+    "_description": "新增一个命令"
   },
   {
     "cmd": "deleteCmd",
     "alias": "dc",
-    "desc": "删除一个命令"
+    "_description": "删除一个命令"
   },
   {
     "cmd": "runCmd",
     "alias": "rc",
-    "desc": "展示当前命令&选择命令运行"
+    "_description": "展示当前命令&选择命令运行"
   },
   {
     "cmd": "excelTranslate",
     "alias": "et",
-    "desc": "翻译 excel 表"
+    "_description": "翻译 excel 表"
   }
 ]

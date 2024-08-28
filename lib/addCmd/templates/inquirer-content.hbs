@@ -1,12 +1,17 @@
-module.exports = `const log = require("../../utils/log");
+const log = require("../../utils/log");
 const Spinner = require("../../utils/spinner");
 const runStep = require("../../utils/runStep");
+const { prompt, notNumberRule } = require("../../utils/inquirer");
 const path = require("path");
 
 let mainSpinner;
 
+let cmd;
+
 // 初始化变量
-const initVar = () => {};
+const initVar = (answers) => {
+  cmd = answers.cmd;
+};
 
 const step1 = () => {};
 
@@ -30,7 +35,16 @@ const todoStepList = [
 module.exports = async (_, options) => {
   const { _description, parent } = options;
 
-  initVar();
+  const answers = await prompt([
+    {
+      type: "input",
+      name: "cmd",
+      message: "命令名称（eg：addMsg|addPage）:",
+      validate: notNumberRule,
+    },
+  ]);
+
+  initVar(answers);
 
   mainSpinner = new Spinner(_description);
 
@@ -50,10 +64,9 @@ module.exports = async (_, options) => {
     log.newLine();
 
     log.warn("next todo");
-    runStep(todoStepList, "warn", { prefix: "todo"});
+    runStep(todoStepList, "warn", { prefix: "todo" });
   {{/if}}
   } else {
     mainSpinner.fail();
   }
 };
-`;

@@ -24,7 +24,11 @@ const getFileName = (filePath) => {
   return [filename, extname];
 };
 
-const getRePath = (rePath, dirname = __dirname) => path.join(dirname, rePath);
+// 基于当前运行命令的目录，获取相对路径。默认基于 utils/path.js
+const getDirRePath = (dirname, ...args) => path.join(dirname, ...args);
+
+// 基于当前工作目录，获取相对路径
+const getCwdRePath = (...args) => path.join(currCwdPath, ...args);
 
 module.exports = {
   root,
@@ -32,5 +36,6 @@ module.exports = {
   currCmdPath,
   getFullPathBy,
   getFileName,
-  getRePath,
+  getDirRePath,
+  getCwdRePath,
 };
