@@ -13,5 +13,10 @@
     "cmd": "runCmd",
     "alias": "rc",
     "desc": "展示当前命令&选择命令运行"
+  },
+  {
+    "cmd": "excelTranslate",
+    "alias": "et",
+    "desc": "翻译 excel 表"
   }
 ]

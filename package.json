@@ -14,16 +14,21 @@
   "author": "hzq",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.4",
     "chalk": "^4.1.2",
     "commander": "^12.1.0",
+    "crypto": "^1.0.1",
     "dayjs": "^1.11.12",
+    "dotenv": "^16.4.5",
     "download-git-repo": "^3.0.2",
+    "exceljs": "^4.4.0",
     "fs-extra": "^11.2.0",
     "handlebars": "^4.7.8",
     "inquirer": "^8",
     "ora": "^5.4.1",
     "path": "^0.12.7",
-    "simple-git": "^3.25.0"
+    "simple-git": "^3.25.0",
+    "xlsx": "^0.18.5"
   },
   "templateUrl": "https://github.com/MrHzq/cli-template-2024.git"
 }
