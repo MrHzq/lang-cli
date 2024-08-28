@@ -1,28 +1,27 @@
-const { firstUpperCase } = require("./common");
+const { firstUpperCase, doFun, doFunPro } = require("./common");
 const log = require("./log");
 const Spinner = require("./spinner");
 
 // 统一的运行流程方法
 module.exports = async (stepList, globalFailType = "fail", config = {}) => {
-  // fail、warn
-  let finalType = globalFailType;
+  let finalType = globalFailType; // fail | warn
   let everySuccess = false;
 
-  for (let index = 0; index < stepList.length; index++) {
+  const stepListLen = stepList.length;
+
+  for (let index = 0; index < stepListLen; index++) {
     const item = stepList[index];
     const { fun, desc, ignore } = item;
 
+    if (doFun(ignore)) continue;
+
     if (item.failType) finalType = item.failType;
 
-    if (ignore) continue;
-
-    const finalDesc = typeof desc === "function" ? desc() : desc;
-
     const stepSpinner = new Spinner(
-      (config.hideIndex ? "" : index + 1 + "、") + finalDesc
+      (config.hideIndex ? "" : index + 1 + ". ") + doFun(desc)
     );
 
-    let funRes = typeof fun === "function" ? await fun() : {};
+    let funRes = await doFunPro([fun, {}]);
 
     // 表明无错误，则是走【成功】逻辑
     if (funRes === undefined) funRes = { success: true };
@@ -33,7 +32,7 @@ module.exports = async (stepList, globalFailType = "fail", config = {}) => {
       };
     }
 
-    const { success, tip = "" } = funRes;
+    const { success, tip, stop } = funRes;
 
     if (funRes.failType) finalType = funRes.failType;
 
@@ -42,23 +41,30 @@ module.exports = async (stepList, globalFailType = "fail", config = {}) => {
 
       stepSpinner.succeed("", config.prefix);
 
-      if (tip) log.succeed(tip);
-
-      if (typeof config.onSuccess === "function") {
-        config.onSuccess(item, funRes);
+      if (tip) {
+        log.newLine();
+        log.succeed(tip);
       }
+
+      doFun(funRes.onSuccess, item, funRes);
     } else {
       stepSpinner[finalType]("", config.prefix);
 
       everySuccess = finalType === "warn";
 
-      if (tip) log[finalType](tip);
+      if (tip) {
+        log.newLine();
+        log[finalType](tip);
+      }
 
-      const cb = config[`on${firstUpperCase(finalType)}`];
-
-      if (typeof cb === "function") cb(item, funRes);
+      doFun(funRes[`on${firstUpperCase(finalType)}`], item, funRes);
 
       if (finalType === "fail") break;
+    }
+
+    if (stop) {
+      log.fail("主动停止");
+      break;
     }
   }
 

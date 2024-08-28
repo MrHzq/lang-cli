@@ -4,8 +4,21 @@ const Handlebars = require("handlebars");
 const toHBSTemp = (temp) => Handlebars.compile(temp);
 const getHBSContent = (temp, config) => toHBSTemp(temp)(config);
 
-// 格式化时间
+// 格式化当前时间
 const formatTime = (format = "YYYY-MM-DD HH:mm:ss") => dayjs().format(format);
+
+// 格式化传入时间
+const formatTimeBy = (time, format = "YYYY-MM-DD HH:mm:ss") =>
+  dayjs(time).format(format);
+
+const bitTransform = (bit) => {
+  bit = Number(bit);
+  if (isNaN(bit)) bit = 0;
+
+  const kb = (bit / 1024).toFixed(2);
+  const mb = (kb / 1024).toFixed(2);
+  return { kb, kbs: `${kb} KB`, mb, mbs: `${mb} MB` };
+};
 
 // 获取[开始年份到今年]的所有年数据
 const getAllYears = (startYear = 2017) => {
@@ -52,10 +65,36 @@ const getAliasHyphen = (str) => {
   return result;
 };
 
+const doFun = (obj, ...args) => {
+  obj = Array.isArray(obj) ? obj : [obj];
+  const [fun] = obj;
+
+  let res = fun;
+
+  if (typeof fun === "function") res = fun(...args);
+  else if (obj.length > 1) res = obj[1];
+
+  return res;
+};
+
+const doFunPro = async (obj, ...args) => {
+  obj = Array.isArray(obj) ? obj : [obj];
+  const [fun] = obj;
+
+  let res = fun;
+
+  if (typeof fun === "function") res = await fun(...args);
+  else if (obj.length > 1) res = obj[1];
+
+  return res;
+};
+
 module.exports = {
   toHBSTemp,
   getHBSContent,
   formatTime,
+  formatTimeBy,
+  bitTransform,
   getAllYears,
   isExistByRegTest,
   camelToHyphen,
@@ -63,4 +102,6 @@ module.exports = {
   firstLowerCase,
   getAlias,
   getAliasHyphen,
+  doFun,
+  doFunPro,
 };
