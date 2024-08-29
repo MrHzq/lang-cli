@@ -45,7 +45,7 @@ const removeDir = (p) => {
 };
 
 // 复制文件夹
-const copyDir = (s, t, re = true) => fs.copy(s, t, { recursive: re });
+const copyDir = (s, t, re = true) => fs.copySync(s, t, { recursive: re });
 
 // 读取当前所有文件和文件夹
 const readdirSync = (p = ".") => fs.readdirSync(p);
@@ -62,8 +62,10 @@ const getFileList = (filterKey, targetPath) => {
   return filterFileList(fileList, filterKey)
     .sort((a, b) => a.localeCompare(b))
     .map((file, index) => {
+      const { sizeFormat } = getFileDetail(path.resolve(file));
+
       return {
-        name: `${index + 1}. ${file}`,
+        name: `${index + 1}. ${file} ${sizeFormat.mbs}`,
         value: file,
       };
     });
