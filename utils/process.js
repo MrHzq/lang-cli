@@ -30,12 +30,30 @@ const code = {
   run(cmd, ...args) {
     return processRun(this[cmd](...args));
   },
-  appName() {
-    const editor = "Cursor";
-    return editor;
+
+  editor: "cursor",
+  editorMap: {
+    cursor: "Cursor",
+    vscode: "Visual Studio Code",
   },
+
+  prompt: {
+    type: "list",
+    name: "editor",
+    message: "请选择编辑器:",
+    choices: ["vscode", "cursor"],
+  },
+
+  setEditor(editor) {
+    this.editor = editor;
+  },
+
+  getEditorApp() {
+    return this.editorMap[this.editor];
+  },
+
   open(path) {
-    return `open -a '${this.appName()}' ${path}`;
+    return `open -a '${this.getEditorApp()}' ${path}`;
   },
 };
 

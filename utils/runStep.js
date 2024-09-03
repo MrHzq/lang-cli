@@ -21,7 +21,7 @@ module.exports = async (stepList, globalFailType = "fail", config = {}) => {
       (config.hideIndex ? "" : index + 1 + ". ") + doFun(desc)
     );
 
-    let funRes = await doFunPro([fun, {}]);
+    let funRes = await doFunPro([fun, {}], config);
 
     // 表明无错误，则是走【成功】逻辑
     if ([undefined, null].includes(funRes)) funRes = { success: true };
@@ -39,23 +39,17 @@ module.exports = async (stepList, globalFailType = "fail", config = {}) => {
     if (success) {
       everySuccess = true;
 
-      stepSpinner.succeed("", config.prefix);
+      if (stepListLen > 1) stepSpinner.succeed("", config.prefix);
 
-      if (tip) {
-        log.newLine();
-        log.succeed(tip);
-      }
+      if (tip) log.succeed(tip, true);
 
       doFun(funRes.onSuccess, item, funRes);
     } else {
-      stepSpinner[finalType]("", config.prefix);
+      if (stepListLen > 1) stepSpinner[finalType]("", config.prefix);
 
       everySuccess = finalType === "warn";
 
-      if (tip) {
-        log.newLine();
-        log[finalType](tip);
-      }
+      if (tip) log[finalType](tip, true);
 
       doFun(funRes[`on${firstUpperCase(finalType)}`], item, funRes);
 

@@ -1,35 +1,36 @@
-const path = require("path");
-
-const { readFileSync, writeFileSync } = require("../utils/fs");
+const {
+  removeEmpty,
+  getFilterList,
+  formatCmdList,
+} = require("../utils/common");
+const { writeFileSync } = require("../utils/fs");
 const { getDirRePath } = require("../utils/path");
 
 class handleCmdList {
   constructor() {
     this.fileName = "cmdList.json";
+    this.list = require("./" + this.fileName);
     this.path = getDirRePath(__dirname, this.fileName);
-    this.list = this.getList();
   }
 
   // 获取 cmdList.json 原始数据
-  getListOrigin() {
-    const list = readFileSync(this.path);
-    return list ? list : "[]";
+  getStringifyList() {
+    return JSON.stringify(this.list, null, 2);
   }
 
   // 获取 cmdList.json 数据
   getList() {
-    return JSON.parse(this.getListOrigin());
+    return this.list;
   }
 
-  // 获取 cmdList.json 数据
-  getFormatList() {
-    return this.list.map((item) => {
-      const { cmd, _description, alias } = item;
-      return {
-        name: `${cmd}: ${_description} ${alias ? `(${alias})` : ""}`,
-        value: cmd,
-      };
-    });
+  // 获取格式化 && 过滤了的 cmdList.json 数据,filterType:'eq'
+  getFormatListFilter(filterValue, filterType = "") {
+    return getFilterList(this.getFormatList(), filterValue, filterType);
+  }
+
+  // 获取格式化 cmdList.json 数据
+  getFormatList(list = this.list) {
+    return formatCmdList(list);
   }
 
   // 获取当前项目可执行的父级命令
@@ -49,13 +50,13 @@ class handleCmdList {
   }
 
   // 查找：返回 index
-  findIndex(cmd) {
-    return this.list.findIndex((item) => [item.cmd, item.alias].includes(cmd));
+  findIndex(cmd, list = this.list) {
+    return list.findIndex((item) => [item.cmd, item.alias].includes(cmd));
   }
 
   // 查找：item
-  find(cmd) {
-    return this.list.find((item) => [item.cmd, item.alias].includes(cmd));
+  find(cmd, list = this.list) {
+    return list.find((item) => [item.cmd, item.alias].includes(cmd));
   }
 
   // 删除某个命令
@@ -71,11 +72,15 @@ class handleCmdList {
   }
 
   // 替换某个命令
-  replace(newItem, index = -1) {
-    const { oldCmd, ...reset } = newItem;
-    if (index === -1) index = this.findIndex(oldCmd);
-    Object.assign(this.list[index], reset);
-    this.write();
+  replace(newItem, value) {
+    let index;
+
+    if (typeof value !== "number") index = this.findIndex(value);
+
+    if (index !== -1) {
+      Object.assign(this.list[index], removeEmpty(newItem));
+      this.write();
+    }
   }
 }
 

@@ -7,6 +7,9 @@ const getHBSContent = (temp, config) => toHBSTemp(temp)(config);
 // 格式化当前时间
 const formatTime = (format = "YYYY-MM-DD HH:mm:ss") => dayjs().format(format);
 
+// 获取当前时间戳
+const getTime = () => new Date().getTime() / 1000;
+
 // 格式化传入时间
 const formatTimeBy = (time, format = "YYYY-MM-DD HH:mm:ss") =>
   dayjs(time).format(format);
@@ -15,9 +18,9 @@ const bitTransform = (bit) => {
   bit = Number(bit);
   if (isNaN(bit)) bit = 0;
 
-  const kb = (bit / 1024).toFixed(2);
-  const mb = (kb / 1024).toFixed(2);
-  return { kb, kbs: `${kb} KB`, mb, mbs: `${mb} MB` };
+  const kb = (bit / 1024).toFixed(4);
+  const mb = (kb / 1024).toFixed(4);
+  return { bit, kb, kbs: `${kb} KB`, mb, mbs: `${mb} MB` };
 };
 
 // 获取[开始年份到今年]的所有年数据
@@ -55,6 +58,7 @@ const getAlias = (str) => {
   for (let char of str) {
     if (/[A-Z]/.test(char)) result += char.toLowerCase();
   }
+  if (result.length === 1) result = "";
   return result;
 };
 
@@ -89,10 +93,50 @@ const doFunPro = async (obj, ...args) => {
   return res;
 };
 
+// 删除对象中的空值
+const removeEmpty = (obj, otherEmptyAdjustList = []) => {
+  Object.keys(obj).forEach((key) => {
+    if ([null, undefined, "", ...otherEmptyAdjustList].includes(obj[key])) {
+      delete obj[key];
+    }
+  });
+  return obj;
+};
+
+// 格式化 cmdList 数据，用于 inquire 库
+const formatCmdList = (list) => {
+  return list.map((item) => {
+    const { cmd, _description, alias } = item;
+    return {
+      name: `${cmd}: ${_description} ${alias ? `(${alias})` : ""}`,
+      value: cmd,
+    };
+  });
+};
+
+// 获取已过滤过的 list
+const getFilterList = (list, filterValue, filterType = "") => {
+  const filterObj = removeEmpty(Object.assign({}, filterValue || {}));
+
+  return (list || []).filter((item) => {
+    const keys = Object.keys(filterObj);
+    if (!keys.length) return true;
+
+    return keys.some((key) => {
+      const isEq = filterObj[key] === item[key];
+      return filterType === "eq" ? isEq : !isEq;
+    });
+  });
+};
+
+// 睡眠
+const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
+
 module.exports = {
   toHBSTemp,
   getHBSContent,
   formatTime,
+  getTime,
   formatTimeBy,
   bitTransform,
   getAllYears,
@@ -104,4 +148,8 @@ module.exports = {
   getAliasHyphen,
   doFun,
   doFunPro,
+  removeEmpty,
+  formatCmdList,
+  getFilterList,
+  sleep,
 };

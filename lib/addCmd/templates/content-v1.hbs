@@ -2,11 +2,11 @@ const path = require("path");
 const log = require("../../utils/log");
 const Spinner = require("../../utils/spinner");
 const runStep = require("../../utils/runStep");
-const { renameSync } = require("../../utils/fs");
-const { getDirName } = require("../../utils/path");
 {{#if needConfig}}
+const { getDirName } = require("../../utils/path");
 const { readConfig, writeConfig } = require("../../config/handler");
 {{/if}}
+const CmdList = require("../../bin/handleCmdList");
 {{#if needInquirer}}
 const { prompt, notNumberRule } = require("../../utils/inquirer");
 {{/if}}
@@ -31,40 +31,46 @@ const setConfig = () => {
 {{/if}}
 
 {{#if needInquirer}}
-let inputValue;
+let cliName, $1;
 
 // 初始化变量
 const initVar = (answers) => {
-  inputValue = answers.inputValue;
+  cliName = CmdList.getCliName();
+
+  $1 = answers.$1;
 };
 {{else}}
 // 初始化变量
-const initVar = () => {};
+const initVar = (answers) => {};
 {{/if}}
 
-const step1 = () => {};
+const runMain = () => {};
 
 // 主流程 - step 集合
 const mainStepList = [
   {
-    fun: step1,
-    desc: () => "step1",
+    fun: runMain,
+    desc: () => "运行",
   },
 ];
 
-{{#if needTodo}}
 // todo 流程 - step 集合
 const todoStepList = [
+{{#if needTodo}}
   {
     desc: () => "todo...",
   },
-];
+{{else}}
+  // {
+  //   desc: () => "todo...",
+  // },
 {{/if}}
+];
 
-module.exports = async (_, options) => {
-  const { _description, args } = options;
+module.exports = async (_, options = {}) => {
+  const { _name, _description, args } = options;
 
-  const [arg] = args || []
+  const [arg] = args || [];
 
   {{#if needConfig}}
   getConfig();
@@ -76,7 +82,7 @@ module.exports = async (_, options) => {
   answers = await prompt([
     {
       type: "input",
-      name: " inputValue",
+      name: "$1",
       message: "请输入:",
       validate: notNumberRule,
     },
@@ -104,12 +110,8 @@ module.exports = async (_, options) => {
   if (runSuccess) {
     mainSpinner.succeed();
 
-  {{#if needTodo}}
-    log.newLine();
-
-    log.warn("next todo");
+    log.warn("next todo", true);
     runStep(todoStepList, "warn", { prefix: "todo" });
-  {{/if}}
   } else {
     mainSpinner.fail();
   }
