@@ -2,26 +2,32 @@ const path = require("path");
 const fs = require("fs-extra");
 const log = require("./log");
 const { getFileName } = require("./path");
-const { bitTransform, formatTimeBy, getTime, doFun } = require("./common");
+const {
+  bitTransform,
+  formatTimeBy,
+  getTime,
+  doFun,
+  getRandomStr,
+} = require("./common");
 
 // 检查文件是否存在
 const checkFileExist = fs.existsSync;
 
 // 基于已有文件，生成自定义的文件名称
-const newFileName = (filePath, { suffix, prefix } = {}) => {
+const createNewNameBy = (filePath, { suffix, prefix } = {}) => {
   if (checkFileExist(filePath)) {
     let [fileName, ext] = getFileName(filePath);
-    fileName = [prefix, fileName, suffix].filter((i) => i).join("_");
+    fileName = [prefix, fileName, suffix].filter(Boolean).join("_");
     return path.join(path.dirname(filePath), `${fileName}${ext}`);
   } else return filePath;
 };
 
 // 基于已有文件，生成唯一的文件名称
-const createUniqueFileName = (filePath, { suffix, prefix } = {}) => {
-  const random_suffix = Math.random().toString(36).substring(2, 8);
-  return newFileName(filePath, {
-    suffix: [suffix, random_suffix].filter((i) => i).join("_"),
+const createUniqueNameBy = (filePath, { suffix, prefix } = {}) => {
+  const random_suffix = getRandomStr();
+  return createNewNameBy(filePath, {
     prefix,
+    suffix: [random_suffix, suffix].filter(Boolean).join("_"),
   });
 };
 
@@ -73,7 +79,7 @@ const filterFileList = (fileList, filterKey, notFilterKey) => {
       if (typeof filterKey === "string") {
         flg = file.includes(filterKey);
       } else if (Array.isArray(filterKey)) {
-        flg = filterKey.filter((key) => key).every((key) => file.includes(key));
+        flg = filterKey.filter(Boolean).every((key) => file.includes(key));
       }
     }
 
@@ -81,9 +87,7 @@ const filterFileList = (fileList, filterKey, notFilterKey) => {
       if (typeof notFilterKey === "string") {
         flg = !file.includes(notFilterKey);
       } else if (Array.isArray(notFilterKey)) {
-        flg = notFilterKey
-          .filter((key) => key)
-          .every((key) => !file.includes(key));
+        flg = notFilterKey.filter(Boolean).every((key) => !file.includes(key));
       }
     }
 
@@ -167,8 +171,8 @@ const logFileDetail = (file) => {
 
 module.exports = {
   checkFileExist,
-  newFileName,
-  createUniqueFileName,
+  createNewNameBy,
+  createUniqueNameBy,
   statSync,
   readFileSync,
   readFileSyncFormat,

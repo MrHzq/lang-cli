@@ -44,14 +44,17 @@ module.exports = async (stepList, globalFailType = "fail", config = {}) => {
       if (tip) log.succeed(tip, true);
 
       doFun(funRes.onSuccess, item, funRes);
+      doFun(config.onSuccessStep, item, funRes);
     } else {
-      if (stepListLen > 1) stepSpinner[finalType]("", config.prefix);
+      stepSpinner[finalType]("", config.prefix);
 
       everySuccess = finalType === "warn";
 
       if (tip) log[finalType](tip, true);
 
-      doFun(funRes[`on${firstUpperCase(finalType)}`], item, funRes);
+      const funKey = `on${firstUpperCase(finalType)}`;
+      doFun(funRes[funKey], item, funRes);
+      doFun(config[funKey + "Step"], item, funRes);
 
       if (finalType === "fail") break;
     }
