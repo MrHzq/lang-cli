@@ -14,9 +14,12 @@ const processRun = (cmd, type = "run", _config = {}) => {
   } catch (error) {
     const tip = `执行 '${cmd}' 时出错: ${error.message}`;
     log.error(tip);
-    return tip;
+    return `err: ${tip}`;
   }
 };
+
+// 中断执行
+const processExit = process.exit;
 
 // cd 操作
 const cd = {
@@ -95,11 +98,11 @@ const git = {
   getUser() {
     this.type = "get";
     // 获取用户名
-    const userName = this.run("userName")?.trim()
+    const userName = this.run("userName")?.trim();
 
     this.type = "get";
     // 获取用户邮箱
-    const userEmail = this.run("userEmail")?.trim()
+    const userEmail = this.run("userEmail")?.trim();
 
     return { userName, userEmail };
   },
@@ -107,6 +110,7 @@ const git = {
 
 module.exports = {
   processRun,
+  processExit,
   cd,
   code,
   git,

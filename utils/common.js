@@ -4,15 +4,29 @@ const Handlebars = require("handlebars");
 const toHBSTemp = (temp) => Handlebars.compile(temp);
 const getHBSContent = (temp, config) => toHBSTemp(temp)(config);
 
-// 格式化当前时间
-const formatTime = (format = "YYYY-MM-DD HH:mm:ss") => dayjs().format(format);
-
 // 获取当前时间戳
 const getTime = () => new Date().getTime() / 1000;
+
+// 格式化当前时间
+const formatTime = (format = "YYYY-MM-DD HH:mm:ss") => dayjs().format(format);
 
 // 格式化传入时间
 const formatTimeBy = (time, format = "YYYY-MM-DD HH:mm:ss") =>
   dayjs(time).format(format);
+
+// 秒转为 00:00:00
+const formatScend = (scend) => {
+  scend = Number(scend);
+  // 转为小时:分钟:秒
+  const hours = Math.floor(scend / 3600);
+  const minutes = Math.floor((scend % 3600) / 60);
+  const seconds = Math.floor(scend % 60);
+  // 补零
+  const hoursStr = hours.toString().padStart(2, "0");
+  const minutesStr = minutes.toString().padStart(2, "0");
+  const secondsStr = seconds.toString().padStart(2, "0");
+  return `${hoursStr}:${minutesStr}:${secondsStr}`;
+};
 
 const bitTransform = (bit) => {
   bit = Number(bit);
@@ -110,6 +124,7 @@ const formatCmdList = (list) => {
     return {
       name: `${cmd}: ${_description} ${alias ? `(${alias})` : ""}`,
       value: cmd,
+      origin: item,
     };
   });
 };
@@ -130,17 +145,22 @@ const getFilterList = (list, filterValue, filterType = "") => {
 };
 
 // 睡眠
-const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
+const sleep = (time = 1000) =>
+  new Promise((resolve) => setTimeout(resolve, time));
 
 // 生成随机字符串
 const getRandomStr = (len = 8) => Math.random().toString(36).substring(2, len);
 
+// 创建长度为 n 的空字符串
+const spaceStr = (length) => Array.from({ length }, () => " ").join("");
+
 module.exports = {
   toHBSTemp,
   getHBSContent,
-  formatTime,
   getTime,
+  formatTime,
   formatTimeBy,
+  formatScend,
   bitTransform,
   getAllYears,
   isExistByRegTest,
@@ -156,4 +176,5 @@ module.exports = {
   getFilterList,
   sleep,
   getRandomStr,
+  spaceStr,
 };

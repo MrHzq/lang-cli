@@ -34,6 +34,8 @@ module.exports = async (_, options) => {
     onBeforeTodo,
     onStartTodo,
     todoStepList = [],
+    needLogTime = false,
+    oneKeyHasMute = false,
   } = await require(path.join(
     __dirname,
     "../lib",
@@ -56,6 +58,12 @@ module.exports = async (_, options) => {
         if (answers.configType === "add") Object.assign(config, answers.config);
         else config = answers.config;
         setConfig();
+      } else {
+        if (oneKeyHasMute) {
+          answers.currPromptKey = Object.entries(config).find(
+            ([key, value]) => value === answers.config[answers.currPromptKey]
+          )?.[0];
+        }
       }
     }
 
@@ -66,7 +74,7 @@ module.exports = async (_, options) => {
 
   if (openDebug) return; // 中断逻辑，用于调试
 
-  // console.time("本次执行耗时");
+  if (needLogTime) console.time("本次执行耗时");
 
   mainSpinner = new Spinner(_description);
 
@@ -92,5 +100,5 @@ module.exports = async (_, options) => {
   }
 
   log.newLine();
-  // console.timeEnd("本次执行耗时");
+  if (needLogTime) console.timeEnd("本次执行耗时");
 };

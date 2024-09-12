@@ -10,6 +10,11 @@
     "_description": "删除一个命令"
   },
   {
+    "cmd": "ls",
+    "alias": "",
+    "_description": "列出所有命令"
+  },
+  {
     "cmd": "mergeCmd",
     "alias": "mc",
     "_description": "将某些 cmd 合并到一个大类里面"

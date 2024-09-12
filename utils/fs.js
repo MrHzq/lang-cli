@@ -13,13 +13,17 @@ const {
 // 检查文件是否存在
 const checkFileExist = fs.existsSync;
 
+// 基于传入文件(不需要存在)，生成自定义的文件名称
+const createNewName = (filePath, { suffix, prefix } = {}) => {
+  let [fileName, ext] = getFileName(filePath);
+  fileName = [prefix, fileName, suffix].filter(Boolean).join("_");
+  return path.join(path.dirname(filePath), `${fileName}${ext}`);
+};
+
 // 基于已有文件，生成自定义的文件名称
-const createNewNameBy = (filePath, { suffix, prefix } = {}) => {
-  if (checkFileExist(filePath)) {
-    let [fileName, ext] = getFileName(filePath);
-    fileName = [prefix, fileName, suffix].filter(Boolean).join("_");
-    return path.join(path.dirname(filePath), `${fileName}${ext}`);
-  } else return filePath;
+const createNewNameBy = (filePath, config) => {
+  if (checkFileExist(filePath)) return createNewName(filePath, config);
+  else return filePath;
 };
 
 // 基于已有文件，生成唯一的文件名称
@@ -29,6 +33,18 @@ const createUniqueNameBy = (filePath, { suffix, prefix } = {}) => {
     prefix,
     suffix: [random_suffix, suffix].filter(Boolean).join("_"),
   });
+};
+
+// 基于文件名，当后缀不存在，则强制添加后缀
+const foreAddSuffix = (fileName, suffix) => {
+  if (!fileName.includes(suffix)) {
+    const newFileName = createNewNameBy(fileName, { suffix });
+
+    if (checkFileExist(fileName)) renameSync(fileName, newFileName);
+
+    // 修改文件的的时间为当前时间
+    if (checkFileExist(newFileName)) utimesSync(newFileName);
+  }
 };
 
 // 获取文件状态信息
@@ -72,24 +88,29 @@ const readdirSync = (p = ".") => fs.readdirSync(p);
 
 // 根据文件名称进行过滤
 const filterFileList = (fileList, filterKey, notFilterKey) => {
+  const getFlg = (file, strKey) => {
+    let flg = true;
+    if (typeof strKey === "string") {
+      if (strKey.includes("||")) {
+        flg = strKey.split("||").some((key) => file.includes(key.trim()));
+      } else if (strKey.includes("&&")) {
+        flg = strKey.split("&&").every((key) => file.includes(key.trim()));
+      } else {
+        flg = file.includes(strKey);
+      }
+    } else if (Array.isArray(strKey)) {
+      flg = strKey.filter(Boolean).every((key) => file.includes(key));
+    }
+
+    return flg;
+  };
+
   return fileList.filter((file) => {
     let flg = true;
 
-    if (flg && filterKey?.length) {
-      if (typeof filterKey === "string") {
-        flg = file.includes(filterKey);
-      } else if (Array.isArray(filterKey)) {
-        flg = filterKey.filter(Boolean).every((key) => file.includes(key));
-      }
-    }
+    if (flg && filterKey?.length) flg = getFlg(file, filterKey);
 
-    if (flg && notFilterKey?.length) {
-      if (typeof notFilterKey === "string") {
-        flg = !file.includes(notFilterKey);
-      } else if (Array.isArray(notFilterKey)) {
-        flg = notFilterKey.filter(Boolean).every((key) => !file.includes(key));
-      }
-    }
+    if (flg && notFilterKey?.length) flg = !getFlg(file, notFilterKey);
 
     return flg;
   });
@@ -97,15 +118,23 @@ const filterFileList = (fileList, filterKey, notFilterKey) => {
 
 // 获取当前 cwd 运行目录下的所有文件（可通过 filterKey 过滤）
 const getFileList = (filterKey, targetPath, sortKey, filterFun) => {
-  filterKey = Array.isArray(filterKey)
-    ? filterKey
-    : filterKey
-    ? [filterKey]
-    : [];
+  if (filterKey.includes("||") || filterKey.includes("&&")) {
+  } else {
+    filterKey = Array.isArray(filterKey)
+      ? filterKey
+      : filterKey
+      ? [filterKey]
+      : [];
+  }
 
   let notFilterKey = [];
 
-  if (Array.isArray(targetPath)) {
+  if (
+    targetPath &&
+    (targetPath.includes("||") ||
+      targetPath.includes("&&") ||
+      Array.isArray(targetPath))
+  ) {
     notFilterKey = targetPath;
     targetPath = ".";
   }
@@ -173,6 +202,7 @@ module.exports = {
   checkFileExist,
   createNewNameBy,
   createUniqueNameBy,
+  foreAddSuffix,
   statSync,
   readFileSync,
   readFileSyncFormat,
