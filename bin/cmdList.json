@@ -20,8 +20,8 @@
     "_description": "将某些 cmd 合并到一个大类里面"
   },
   {
-    "cmd": "renameCmd",
-    "alias": "rec",
+    "cmd": "changeCmdName",
+    "alias": "ccn",
     "_description": "更改命令名称"
   },
   {

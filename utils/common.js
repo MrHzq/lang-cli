@@ -28,6 +28,7 @@ const formatScend = (scend) => {
   return `${hoursStr}:${minutesStr}:${secondsStr}`;
 };
 
+// 将字节转为 kb、mb
 const bitTransform = (bit) => {
   bit = Number(bit);
   if (isNaN(bit)) bit = 0;
@@ -53,6 +54,23 @@ const getAllYears = (startYear = 2017) => {
 const isExistByRegTest = (content, target) => {
   const regex = new RegExp(`\\b${target}\\b`); // 创建正则表达式对象，^表示匹配字符串的开头，$表示匹配字符串的结尾，从而实现完全匹配
   return regex.test(content); // 使用 test 方法进行正则匹配
+};
+
+// 检查某个依赖是否被使用了
+const checkDependencyUsed = (dependency, fileContent) => {
+  const regexStaticImport = new RegExp(
+    `require\\(['"\`]${dependency}['"\`]|from ['"\`]${dependency}['"\`]`,
+    "i"
+  );
+  const regexDynamicImport = new RegExp(
+    `import\\(['"\`]${dependency}['"\`]\\)`,
+    "i"
+  );
+
+  return [
+    regexStaticImport.test(fileContent),
+    regexDynamicImport.test(fileContent),
+  ].some(Boolean);
 };
 
 // 将驼峰命名转换为横线连接
@@ -154,6 +172,34 @@ const getRandomStr = (len = 8) => Math.random().toString(36).substring(2, len);
 // 创建长度为 n 的空字符串
 const spaceStr = (length) => Array.from({ length }, () => " ").join("");
 
+// 使用 \n split 字符串
+const splitBy = (string, sp = "\n") => string.split(sp).filter(Boolean);
+
+// 使用 \n join 数组
+const joinBy = (list, sp = "\n") => list.filter(Boolean).join(sp);
+
+// 使用文件名正序
+const sortBy = (list, key) => {
+  return list.sort((a, b) =>
+    (key ? a[key] : a).localeCompare(key ? b[key] : b)
+  );
+};
+// 判断数组里面的值是否 includes 关键值
+const someIncludes = (list, value, key) => {
+  return list.some((i) => ((key ? i[key] : i) ?? "").includes(value));
+};
+
+const toPromise = (fn, resolveRes, rejectRes) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const res = doFun([fn, null]);
+      resolve({ success: true, res: res || resolveRes });
+    } catch (error) {
+      reject({ success: false, error, res: rejectRes });
+    }
+  });
+};
+
 module.exports = {
   toHBSTemp,
   getHBSContent,
@@ -164,6 +210,7 @@ module.exports = {
   bitTransform,
   getAllYears,
   isExistByRegTest,
+  checkDependencyUsed,
   camelToHyphen,
   firstUpperCase,
   firstLowerCase,
@@ -177,4 +224,9 @@ module.exports = {
   sleep,
   getRandomStr,
   spaceStr,
+  splitBy,
+  joinBy,
+  sortBy,
+  someIncludes,
+  toPromise,
 };

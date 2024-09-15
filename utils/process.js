@@ -65,11 +65,11 @@ const code = {
 
 // git 操作
 const git = {
-  type: "run",
+  type: "get",
   run(cmd, ...args) {
-    const res = processRun(this[cmd](...args), this.type);
-    this.type = "run";
-    return res;
+    const cmdStr = this[cmd](...args);
+    const runRes = processRun(cmdStr, this.type);
+    return runRes;
   },
   // 暂存 - 注释
   add(file = ".") {
@@ -94,13 +94,15 @@ const git = {
     return "git config --global user.email";
   },
 
+  status() {
+    return "git status --porcelain";
+  },
+
   // 获取 git 用户信息
   getUser() {
-    this.type = "get";
     // 获取用户名
     const userName = this.run("userName")?.trim();
 
-    this.type = "get";
     // 获取用户邮箱
     const userEmail = this.run("userEmail")?.trim();
 
